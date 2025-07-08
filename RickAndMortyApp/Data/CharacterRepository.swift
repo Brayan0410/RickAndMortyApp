@@ -48,4 +48,19 @@ class CharacterRepository: CharacterRepositoryProtocol {
             throw URLError(.badServerResponse)
         }
     }
+    func fetchCharacter(by id: Int) async throws -> Character {
+        let urlString = "\(baseURL)/\(id)"
+        guard let url = URL(string: urlString) else {
+            throw URLError(.badURL)
+        }
+        
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        let dto = try JSONDecoder().decode(CharacterDTO.self, from: data)
+        return dto.toDomain()
+    }
 }

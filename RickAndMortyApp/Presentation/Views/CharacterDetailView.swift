@@ -9,6 +9,8 @@ import SwiftUI
 
 struct CharacterDetailView: View {
     @StateObject var viewModel: CharacterDetailViewModel
+    @State private var showMap = false
+    @EnvironmentObject var favoritesManager: FavoritesManager
 
     var body: some View {
         ScrollView {
@@ -24,7 +26,6 @@ struct CharacterDetailView: View {
                 .clipped()
                 .cornerRadius(10)
 
-                // Información básica
                 VStack(alignment: .leading, spacing: 8) {
                     Text(viewModel.character.name)
                         .font(.largeTitle)
@@ -80,23 +81,32 @@ struct CharacterDetailView: View {
 
                 HStack(spacing: 16) {
                     Button(action: {
-                        // TODO: marcar como favorito
+                        favoritesManager.toggleFavorite(id: viewModel.character.id)
                     }) {
-                        Label("Favorito", systemImage: "heart")
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.blue.opacity(0.1))
-                            .cornerRadius(10)
+                        Label(
+                            favoritesManager.isFavorite(id: viewModel.character.id) ? "Favorito" : "Agregar a favoritos",
+                            systemImage: favoritesManager.isFavorite(id: viewModel.character.id) ? "heart.fill" : "heart"
+                        )
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(10)
                     }
 
                     Button(action: {
-                        // TODO: ir al mapa
+                        showMap = true
                     }) {
                         Label("Ver en mapa", systemImage: "map")
                             .padding()
                             .frame(maxWidth: .infinity)
                             .background(Color.green.opacity(0.1))
                             .cornerRadius(10)
+                    }
+                }
+                .padding(.horizontal)
+                .sheet(isPresented: $showMap) {
+                    NavigationView {
+                        CharacterMapView(character: viewModel.character)
                     }
                 }
                 .padding(.horizontal)

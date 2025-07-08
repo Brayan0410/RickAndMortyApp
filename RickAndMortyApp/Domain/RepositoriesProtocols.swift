@@ -10,6 +10,7 @@ import Combine
 
 protocol CharacterRepositoryProtocol {
     func fetchCharacters(page: Int, filters: CharacterFilters) async throws -> [Character]
+    func fetchCharacter(by id: Int) async throws -> Character
 }
 
 protocol EpisodeRepositoryProtocol {
