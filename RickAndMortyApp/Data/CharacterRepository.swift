@@ -22,7 +22,7 @@ class CharacterRepository: CharacterRepositoryProtocol {
             queryItems.append(URLQueryItem(name: "status", value: status))
         }
         if let species = filters.species, !species.isEmpty {
-            queryItems.append(URLQueryItem(name: "species", value: species))
+            queryItems.append(URLQueryItem(name: "species", value: species.capitalized))
         }
         
         urlComponents.queryItems = queryItems

@@ -11,6 +11,7 @@ struct CharacterDetailView: View {
     @StateObject var viewModel: CharacterDetailViewModel
     @State private var showMap = false
     @EnvironmentObject var favoritesManager: FavoritesManager
+    @ObservedObject var episodeManager = EpisodeViewStateManager.shared 
 
     var body: some View {
         ScrollView {
@@ -67,8 +68,10 @@ struct CharacterDetailView: View {
                                 }
                                 Spacer()
                                 Button(action: {
+                                    episodeManager.toggleEpisodeSeen(id: episode.id)
                                 }) {
-                                    Image(systemName: "eye")
+                                    Image(systemName: episodeManager.isEpisodeSeen(id: episode.id) ? "checkmark.circle.fill" : "circle")
+                                        .foregroundColor(episodeManager.isEpisodeSeen(id: episode.id) ? .green : .gray)
                                 }
                             }
                             .padding(.vertical, 4)
@@ -109,7 +112,6 @@ struct CharacterDetailView: View {
                         CharacterMapView(character: viewModel.character)
                     }
                 }
-                .padding(.horizontal)
             }
             .padding(.vertical)
         }

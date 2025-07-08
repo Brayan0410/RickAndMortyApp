@@ -6,19 +6,20 @@
 //
 
 import Foundation
+import LocalAuthentication
 
 @MainActor
 class FavoritesViewModel: ObservableObject {
     @Published var isAuthenticated = false
     @Published var errorMessage: String?
     @Published var favoriteCharacters: [Character] = []
-    
+
     private let favoritesManager: FavoritesManager
     private let biometricAuthenticator = BiometricAuthenticator()
     private let characterRepository: CharacterRepositoryProtocol
 
     init(
-        favoritesManager: FavoritesManager = .init(),
+        favoritesManager: FavoritesManager = .shared,  
         characterRepository: CharacterRepositoryProtocol = DependencyInjection.shared.container.resolve(CharacterRepositoryProtocol.self)!
     ) {
         self.favoritesManager = favoritesManager
@@ -50,4 +51,3 @@ class FavoritesViewModel: ObservableObject {
         favoriteCharacters = chars
     }
 }
-

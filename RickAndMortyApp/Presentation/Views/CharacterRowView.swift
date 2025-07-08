@@ -11,26 +11,44 @@ struct CharacterRowView: View {
     let character: Character
     
     var body: some View {
-        HStack(spacing: 12) {
-            AsyncImage(url: character.image) { image in
-                image.resizable()
-            } placeholder: {
-                ProgressView()
+        HStack {
+            AsyncImage(url: character.image) { phase in
+                if let image = phase.image {
+                    image.resizable().scaledToFill()
+                } else if phase.error != nil {
+                    Color.red // Error
+                } else {
+                    ProgressView()
+                }
             }
-            .frame(width: 70, height: 70)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            
-            VStack(alignment: .leading, spacing: 6) {
+            .frame(width: 60, height: 60)
+            .clipShape(Circle())
+            .overlay(Circle().stroke(Color.gray.opacity(0.4), lineWidth: 1))
+
+            VStack(alignment: .leading, spacing: 4) {
                 Text(character.name)
                     .font(.headline)
-                Text(character.species)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Text(character.status)
-                    .font(.caption)
-                    .foregroundColor(character.status == "Alive" ? .green : .red)
+
+                HStack {
+                    Circle()
+                        .fill(color(for: character.status))
+                        .frame(width: 8, height: 8)
+                    Text("\(character.status) - \(character.species)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
             }
         }
         .padding(.vertical, 6)
+    }
+    func color(for status: String) -> Color {
+        switch status {
+        case "Alive":
+            return .green
+        case "Dead":
+            return .red
+        default:
+            return .gray
+        }
     }
 }

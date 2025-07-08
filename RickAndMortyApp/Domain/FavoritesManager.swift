@@ -8,11 +8,13 @@
 import Foundation
 
 class FavoritesManager: ObservableObject {
+    static let shared = FavoritesManager()  // <- Singleton
+
     @Published private(set) var favoriteIDs: Set<Int> = []
 
     private let key = "favorite_character_ids"
     
-    init() {
+    private init() { 
         loadFavorites()
     }
     

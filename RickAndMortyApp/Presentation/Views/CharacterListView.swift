@@ -12,29 +12,39 @@ struct CharacterListView: View {
     
     var body: some View {
         NavigationView {
-            content
-                .navigationTitle("Personajes")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Menu {
-                            Picker("Estado", selection: $viewModel.selectedStatus) {
-                                Text("All").tag("All")
-                                Text("Alive").tag("Alive")
-                                Text("Dead").tag("Dead")
-                                Text("unknown").tag("unknown")
-                            }
-                        } label: {
-                            Label("Estado", systemImage: "line.3.horizontal.decrease.circle")
+            VStack {
+                // Campo para filtrar por especie
+                TextField("Filtrar por especie", text: $viewModel.selectedSpecies)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.horizontal)
+                    .onSubmit {
+                        Task { await viewModel.loadCharacters() }
+                    }
+
+                content
+            }
+            .navigationTitle("Personajes")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Menu {
+                        Picker("Estado", selection: $viewModel.selectedStatus) {
+                            Text("All").tag("All")
+                            Text("Alive").tag("Alive")
+                            Text("Dead").tag("Dead")
+                            Text("unknown").tag("unknown")
                         }
+                    } label: {
+                        Label("Estado", systemImage: "line.3.horizontal.decrease.circle")
                     }
                 }
-                .searchable(text: $viewModel.searchText, prompt: "Buscar por nombre")
-                .onChange(of: viewModel.searchText) { _ in
-                    Task { await viewModel.loadCharacters() }
-                }
-                .onChange(of: viewModel.selectedStatus) { _ in
-                    Task { await viewModel.loadCharacters() }
-                }
+            }
+            .searchable(text: $viewModel.searchText, prompt: "Buscar por nombre")
+            .onChange(of: viewModel.searchText) { _ in
+                Task { await viewModel.loadCharacters() }
+            }
+            .onChange(of: viewModel.selectedStatus) { _ in
+                Task { await viewModel.loadCharacters() }
+            }
         }
         .task {
             await viewModel.loadCharacters()
@@ -79,26 +89,7 @@ struct CharacterListView: View {
     }
     
     private var characterList: some View {
-        
-        Menu {
-            Picker("Estado", selection: $viewModel.selectedStatus) {
-                Text("All").tag("All")
-                Text("Alive").tag("Alive")
-                Text("Dead").tag("Dead")
-                Text("unknown").tag("unknown")
-            }
-
-            Divider()
-
-            TextField("Especie", text: $viewModel.selectedSpecies)
-                .onSubmit {
-                    Task { await viewModel.loadCharacters() }
-                }
-        } label: {
-            Label("Filtros", systemImage: "line.3.horizontal.decrease.circle")
-        }
-
-        return List {
+        List {
             ForEach(viewModel.characters) { character in
                 NavigationLink(destination: CharacterDetailView(viewModel: CharacterDetailViewModel(character: character))) {
                     CharacterRowView(character: character)
@@ -111,17 +102,19 @@ struct CharacterListView: View {
                     }
                 }
             }
-                if viewModel.isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
-            }
-            .listStyle(.plain)
-            .refreshable {
-                await viewModel.refreshCharacters()
+
+            if viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
         }
+        .listStyle(.plain)
+        .refreshable {
+            await viewModel.refreshCharacters()
+        }
     }
+}
+
 #Preview {
     CharacterListView()
 }

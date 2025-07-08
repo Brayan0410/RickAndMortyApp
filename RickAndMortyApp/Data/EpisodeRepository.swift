@@ -8,32 +8,30 @@
 import Foundation
 
 class EpisodeRepository: EpisodeRepositoryProtocol {
-    
     private let baseURL = "https://rickandmortyapi.com/api/episode/"
-    
+
     func fetchEpisodes(by ids: [Int]) async throws -> [Episode] {
         guard !ids.isEmpty else { return [] }
-        
-        let idString = ids.map { String($0) }.joined(separator: ",")
-        let urlString = "\(baseURL)[\(idString)]"
-        
+
+        let urlString = baseURL + ids.map { "\($0)" }.joined(separator: ",")
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
 
         let (data, response) = try await URLSession.shared.data(from: url)
-        
+
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw URLError(.badServerResponse)
         }
 
         let decoder = JSONDecoder()
+
         if ids.count == 1 {
-            let single = try decoder.decode(EpisodeDTO.self, from: data)
-            return [single.toDomain()]
+            let episode = try decoder.decode(EpisodeDTO.self, from: data)
+            return [episode.toDomain()]
         } else {
-            let list = try decoder.decode([EpisodeDTO].self, from: data)
-            return list.map { $0.toDomain() }
+            let episodes = try decoder.decode([EpisodeDTO].self, from: data)
+            return episodes.map { $0.toDomain() }
         }
     }
 }
