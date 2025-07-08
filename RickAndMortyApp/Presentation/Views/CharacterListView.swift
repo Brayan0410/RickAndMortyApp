@@ -99,16 +99,18 @@ struct CharacterListView: View {
         }
 
         return List {
-                ForEach(viewModel.characters) { character in
+            ForEach(viewModel.characters) { character in
+                NavigationLink(destination: CharacterDetailView(viewModel: CharacterDetailViewModel(character: character))) {
                     CharacterRowView(character: character)
-                        .onAppear {
-                            if viewModel.characters.last == character {
-                                Task {
-                                    await viewModel.loadNextPage()
-                                }
-                            }
-                        }
                 }
+                .onAppear {
+                    if viewModel.characters.last == character {
+                        Task {
+                            await viewModel.loadNextPage()
+                        }
+                    }
+                }
+            }
                 if viewModel.isLoading {
                     ProgressView()
                         .frame(maxWidth: .infinity, alignment: .center)
